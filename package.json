@@ -26,6 +26,9 @@
     "vitest": "^2.1.8"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "lefthook", "esbuild"]
+    "onlyBuiltDependencies": ["@biomejs/biome", "lefthook", "esbuild"],
+    "overrides": {
+      "undici": "^6.27.0"
+    }
   }
 }
