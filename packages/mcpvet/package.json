@@ -1,6 +1,6 @@
 {
   "name": "@mcpvetio/mcpvet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Security scanner for MCP (Model Context Protocol) configurations",
   "license": "MIT",
   "repository": {
