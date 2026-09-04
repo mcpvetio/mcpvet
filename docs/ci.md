@@ -45,7 +45,7 @@ That's it. The action will:
 | `comment-pr` | Post a PR comment with the results | `true` |
 | `baseline-path` | Path to the baseline file (for diff mode) | `.mcpvet/baseline.json` |
 | `offline` | Skip network calls to npm/PyPI/GitHub | `false` |
-| `mcpvet-command` | Command to invoke mcpvet | `npx mcpvet` |
+| `mcpvet-command` | Command to invoke mcpvet | `npx @mcpvetio/mcpvet` |
 | `github-token` | GitHub token for posting PR comments | `${{ secrets.GITHUB_TOKEN }}` |
 
 ## Outputs

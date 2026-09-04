@@ -17,7 +17,7 @@ MCP servers in agentic IDEs (Cursor, Claude Code, Gemini CLI, GitHub Copilot, Wi
 ## Install
 
 ```bash
-npx mcpvet scan
+npx @mcpvetio/mcpvet scan
 ```
 
 Or install globally:
