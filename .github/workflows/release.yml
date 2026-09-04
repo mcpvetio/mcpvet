@@ -1,0 +1,67 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-cli:
+    name: release-cli
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter mcpvet build
+      - name: Publish to npm (with provenance)
+        run: pnpm --filter mcpvet publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            packages/mcpvet/dist/**
+
+  release-action:
+    name: release-action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter mcpvet-action build
+      - name: Bundle action for distribution
+        run: |
+          mkdir -p dist
+          cp apps/github-action/action.yml dist/
+          cp apps/github-action/package.json dist/
+          cp -r apps/github-action/dist/* dist/
+          cp -r apps/github-action/node_modules dist/node_modules 2>/dev/null || true
+      - name: Create action release tag
+        uses: softprops/action-gh-release@v2
+        with:
+          name: action-${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/**

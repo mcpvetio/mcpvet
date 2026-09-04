@@ -1,0 +1,91 @@
+# Persistence patterns — establishing a foothold that survives reboot.
+# References:
+#   - https://cwe.mitre.org/data/definitions/506.html (Embedded Malicious Code)
+version: 1
+patterns:
+  - id: persist-crontab
+    name: Crontab modification
+    description: |
+      Tool description references adding a crontab entry — the simplest
+      way to survive a reboot on Linux.
+    category: persistence
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "crontab -e"
+        caseSensitive: true
+      - kind: keyword
+        pattern: "(crontab|cron.d)"
+        caseSensitive: false
+      - kind: regex
+        pattern: "/etc/cron"
+    references:
+      - https://cwe.mitre.org/data/definitions/506.html
+
+  - id: persist-shell-rc
+    name: Shell rc file modification
+    description: |
+      Tool description references modifying .bashrc, .zshrc, .profile, or
+      similar shell startup files. The persistence mechanism for ~80% of
+      macOS post-exploitation tooling.
+    category: persistence
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "~?/\\.(bashrc|zshrc|bash_profile|zprofile|profile|fishrc)"
+        flags: "i"
+      - kind: keyword
+        pattern: ">> ~/.bashrc"
+        caseSensitive: false
+    references:
+      - https://cwe.mitre.org/data/definitions/506.html
+
+  - id: persist-systemd
+    name: Systemd service installation
+    description: |
+      Tool description references creating or enabling a systemd service.
+    category: persistence
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "systemctl enable"
+        caseSensitive: true
+      - kind: regex
+        pattern: "/etc/systemd/system/[^\\s]+\\.service"
+    references:
+      - https://cwe.mitre.org/data/definitions/506.html
+
+  - id: persist-launchd
+    name: macOS launchd persistence
+    description: |
+      Tool description references LaunchAgents or LaunchDaemons on macOS —
+      the macOS-native equivalent of systemd services.
+    category: persistence
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "LaunchAgents|LaunchDaemons|/Library/Launch"
+    references:
+      - https://cwe.mitre.org/data/definitions/506.html
+
+  - id: persist-ssh-authorized-keys
+    name: SSH authorized_keys injection
+    description: |
+      Tool description references adding an SSH key to authorized_keys,
+      which gives the attacker persistent SSH access.
+    category: persistence
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "~?/\\.ssh/authorized_keys"
+        flags: "i"
+      - kind: keyword
+        pattern: ">> authorized_keys"
+        caseSensitive: false
+    references:
+      - https://cwe.mitre.org/data/definitions/506.html

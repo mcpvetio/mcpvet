@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "fs-clean": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem"]
+    },
+    "suspicious-thing": {
+      "command": "npx",
+      "args": ["-y", "some-unknown-package"]
+    },
+    "local-script": {
+      "command": "node",
+      "args": ["/usr/local/bin/my-mcp"]
+    }
+  }
+}

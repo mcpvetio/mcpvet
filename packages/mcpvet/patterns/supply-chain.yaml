@@ -1,0 +1,76 @@
+# Supply chain patterns — risks introduced by how a package is built/delivered.
+# References:
+#   - https://owasp.org/www-project-mcp-top-10/
+#   - https://cwe.mitre.org/data/definitions/1357.html (Reliance on Untrusted Component)
+version: 1
+patterns:
+  - id: sc-postinstall-script
+    name: NPM postinstall script
+    description: |
+      Tool description references an npm postinstall script, which runs
+      automatically on `npm install` and is a common supply-chain attack
+      vector.
+    category: supply-chain
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "postinstall"
+        caseSensitive: true
+      - kind: keyword
+        pattern: "preinstall"
+        caseSensitive: true
+    references:
+      - https://cwe.mitre.org/data/definitions/1357.html
+
+  - id: sc-dynamic-require
+    name: Dynamic code loading
+    description: |
+      Tool description references dynamic require/import from a network
+      source or computed name. A common payload delivery mechanism.
+    category: supply-chain
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "require("
+        caseSensitive: true
+      - kind: regex
+        pattern: "import\\(\\s*[`'\"][^`'\"]*\\$\\{"
+    references:
+      - https://cwe.mitre.org/data/definitions/1357.html
+
+  - id: sc-install-from-url
+    name: Install directly from URL
+    description: |
+      Tool description references installing a package directly from a
+      remote URL, bypassing the package manager's integrity checks.
+    category: supply-chain
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "(npm\\s+install|pip\\s+install|gem\\s+install)\\s+https?://"
+        flags: "i"
+      - kind: regex
+        pattern: "curl[^|]*\\|\\s*(npm\\s+install|pip\\s+install|tar\\s+-x)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/1357.html
+
+  - id: sc-obfuscated-source
+    name: Obfuscated source hint
+    description: |
+      Description references obfuscation tooling (javascript-obfuscator,
+      pyobfuscate) or minified single-line code blocks.
+    category: supply-chain
+    severity: medium
+    fields: [description]
+    matchers:
+      - kind: keyword
+        pattern: "javascript-obfuscator"
+        caseSensitive: false
+      - kind: regex
+        pattern: "[A-Za-z_$]{0,3}=\\[\\][\\.\\(\\)_$A-Za-z0-9]{200,}"
+    references:
+      - https://cwe.mitre.org/data/definitions/1357.html

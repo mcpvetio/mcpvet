@@ -1,0 +1,98 @@
+# Exfiltration patterns — anything that suggests sending data out of the host.
+# References:
+#   - https://owasp.org/www-project-mcp-top-10/ (MCP03: Tool Poisoning)
+#   - https://cwe.mitre.org/data/definitions/200.html (Information Exposure)
+version: 1
+patterns:
+  - id: exfil-curl-pipe-shell
+    name: Curl piped to shell
+    description: |
+      Tool description instructs piping remote content directly into a shell.
+      Classic dropper pattern used by 90%+ of supply-chain initial-access payloads.
+    category: exfiltration
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "curl[^|]*\\|\\s*(ba)?sh"
+        flags: "i"
+    references:
+      - https://owasp.org/www-community/attacks/Code_Injection
+      - https://cwe.mitre.org/data/definitions/494.html
+
+  - id: exfil-wget-pipe-shell
+    name: Wget piped to shell
+    description: |
+      Same dropper pattern as curl|sh but using wget. Often used as a fallback
+      when curl is unavailable on minimal containers.
+    category: exfiltration
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "wget[^|]*\\|\\s*(ba)?sh"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/494.html
+
+  - id: exfil-fetch-upload
+    name: Fetch and upload to external endpoint
+    description: |
+      Description that suggests fetching local data and sending it to a remote
+      URL. Common exfiltration primitive.
+    category: exfiltration
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "(fetch|read|cat|get)[^.]*(then|and|before)[^.]*(send|post|upload|exfil|transmit)"
+        flags: "is"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: exfil-base64-payload
+    name: Base64-encoded payload
+    description: |
+      Long base64 strings (>40 chars) in a description are a strong signal
+      of an encoded payload that the LLM is being asked to decode or relay.
+    category: exfiltration
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "[A-Za-z0-9+/]{60,}={0,2}"
+    references:
+      - https://owasp.org/www-project-mcp-top-10/
+
+  - id: exfil-dns-tunnel
+    name: DNS tunneling primitive
+    description: |
+      References to `dig`, `nslookup`, or `host` commands in tool descriptions
+      can indicate DNS-based data exfiltration.
+    category: exfiltration
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "nslookup"
+        caseSensitive: false
+      - kind: keyword
+        pattern: "dig +short"
+        caseSensitive: false
+    references:
+      - https://cwe.mitre.org/data/definitions/200.html
+
+  - id: exfil-tar-pipe-curl
+    name: Tar archive piped to remote
+    description: |
+      Description suggests tarring up the filesystem or home directory and
+      sending it to a remote endpoint.
+    category: exfiltration
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "tar[^|]*\\|\\s*(curl|nc|wget|curl)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/200.html

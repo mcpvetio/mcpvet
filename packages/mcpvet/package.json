@@ -1,0 +1,50 @@
+{
+  "name": "mcpvet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Security scanner for MCP (Model Context Protocol) configurations",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcpvetio/mcpvet.git"
+  },
+  "homepage": "https://github.com/mcpvetio/mcpvet",
+  "bugs": "https://github.com/mcpvetio/mcpvet/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js",
+      "require": "./dist/cli.cjs"
+    }
+  },
+  "bin": {
+    "mcpvet": "./dist/cli.js"
+  },
+  "files": ["dist", "patterns", "README.md", "LICENSE"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --root ../..",
+    "test:watch": "vitest --root ../..",
+    "test:coverage": "vitest run --coverage --root ../..",
+    "build": "tsup && node scripts/copy-patterns.mjs",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

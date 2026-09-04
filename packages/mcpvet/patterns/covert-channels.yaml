@@ -1,0 +1,68 @@
+# Covert channel patterns — hiding data movement in legitimate-looking traffic.
+# References:
+#   - https://cwe.mitre.org/data/definitions/514.html (Covert Channel)
+version: 1
+patterns:
+  - id: covert-dns-txt-exfil
+    name: DNS TXT exfiltration
+    description: |
+      Tool description references encoding data in DNS TXT queries.
+    category: covert-channels
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "TXT[^.]{0,40}(record|query|request)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/514.html
+
+  - id: covert-icmp-tunnel
+    name: ICMP tunneling
+    description: |
+      Tool description references ICMP echo with embedded data — a known
+      covert channel primitive.
+    category: covert-channels
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "ping -p"
+        caseSensitive: true
+      - kind: regex
+        pattern: "icmp[^.]{0,40}(tunnel|exfil|covert)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/514.html
+
+  - id: covert-steganography
+    name: Steganography hint
+    description: |
+      Description references hiding data in images or other media.
+    category: covert-channels
+    severity: medium
+    fields: [description]
+    matchers:
+      - kind: keyword
+        pattern: "steganograph"
+        caseSensitive: true
+      - kind: regex
+        pattern: "(hide|embed|plant)[^.]{0,40}(in|within)\\s+(image|photo|png|jpg|jpeg|gif|mp3|wav)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/514.html
+
+  - id: covert-timing-channel
+    name: Timing-based channel
+    description: |
+      Description suggests encoding data in the timing of API responses or
+      network calls. Hard to detect in logs.
+    category: covert-channels
+    severity: medium
+    fields: [description]
+    matchers:
+      - kind: regex
+        pattern: "(sleep|delay|wait)[^.]{0,40}(encode|represent|signal|bit)"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/514.html

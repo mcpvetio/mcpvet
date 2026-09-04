@@ -1,0 +1,133 @@
+# Command execution patterns — anything that runs code.
+# References:
+#   - https://owasp.org/www-project-mcp-top-10/ (MCP03: Tool Poisoning)
+#   - https://cwe.mitre.org/data/definitions/78.html (OS Command Injection)
+version: 1
+patterns:
+  - id: cmd-bash-sh-exec
+    name: Shell invocation
+    description: |
+      Tool description suggests invoking a shell to run arbitrary commands.
+      The MCP equivalent of "give me code execution".
+    category: command-execution
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "(ba)?sh\\s+-c"
+      - kind: regex
+        pattern: "sh\\s+<<"
+      - kind: keyword
+        pattern: "/bin/sh"
+        caseSensitive: false
+      - kind: keyword
+        pattern: "/bin/bash"
+        caseSensitive: false
+    references:
+      - https://cwe.mitre.org/data/definitions/78.html
+
+  - id: cmd-eval
+    name: Dynamic code evaluation
+    description: |
+      Tool description references eval(), Function(), or exec() — runtime
+      code evaluation primitives.
+    category: command-execution
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "eval("
+        caseSensitive: true
+      - kind: keyword
+        pattern: "new Function("
+        caseSensitive: true
+      - kind: keyword
+        pattern: "child_process.exec"
+        caseSensitive: true
+    references:
+      - https://cwe.mitre.org/data/definitions/95.html
+
+  - id: cmd-rm-rf-destructive
+    name: Destructive file deletion
+    description: |
+      Tool description references recursive, forceful deletion that could
+      destroy the user's data.
+    category: command-execution
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "rm\\s+(-[a-z]*f[a-z]*r|-rf|-fr)\\s+[/~]"
+      - kind: regex
+        pattern: "rm\\s+-[a-z]*r[a-z]*f\\s+/"
+    references:
+      - https://cwe.mitre.org/data/definitions/73.html
+
+  - id: cmd-base64-decode-exec
+    name: Base64 decode piped to execution
+    description: |
+      Decoding a base64 payload and executing it. Classic obfuscation of
+      dropper payloads.
+    category: command-execution
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "base64\\s+(-d|--decode)[^|]*\\|\\s*(ba)?sh"
+        flags: "i"
+    references:
+      - https://cwe.mitre.org/data/definitions/94.html
+
+  - id: cmd-netcat-reverse-shell
+    name: Netcat reverse shell
+    description: |
+      Tool description references a netcat reverse shell pattern. Textbook
+      initial access technique.
+    category: command-execution
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "nc[^|]*-e\\s+/(ba)?sh"
+      - kind: regex
+        pattern: "ncat[^|]*-e\\s+/(ba)?sh"
+      - kind: keyword
+        pattern: "/dev/tcp/"
+        caseSensitive: false
+    references:
+      - https://cwe.mitre.org/data/definitions/78.html
+
+  - id: cmd-chmod-777
+    name: Insecure permission change
+    description: |
+      Setting 0777 permissions on a file is almost always either a mistake
+      or a preparation step for an attack.
+    category: command-execution
+    severity: high
+    fields: [description, command, args]
+    matchers:
+      - kind: regex
+        pattern: "chmod\\s+(0?777|a\\+rwx)"
+    references:
+      - https://cwe.mitre.org/data/definitions/732.html
+
+  - id: cmd-disable-security
+    name: Security control disable
+    description: |
+      Tool description references disabling SELinux, AppArmor, Gatekeeper,
+      or other OS-level security controls.
+    category: command-execution
+    severity: critical
+    fields: [description, command, args]
+    matchers:
+      - kind: keyword
+        pattern: "setenforce 0"
+        caseSensitive: false
+      - kind: keyword
+        pattern: "spctl --master-disable"
+        caseSensitive: false
+      - kind: keyword
+        pattern: "Disable-Defender"
+        caseSensitive: true
+    references:
+      - https://cwe.mitre.org/data/definitions/693.html

@@ -1,0 +1,57 @@
+name: 'mcpvet'
+description: 'Scan MCP configurations for security issues (tool poisoning, credential access, prompt injection)'
+author: 'mcpvet contributors'
+
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  config-path:
+    description: 'Working directory for workspace config discovery (default: repo root)'
+    required: false
+    default: '.'
+  severity-threshold:
+    description: 'Minimum severity to report and fail on (info|low|medium|high|critical)'
+    required: false
+    default: 'low'
+  fail-on-findings:
+    description: 'Fail the action when findings are present'
+    required: false
+    default: 'true'
+  comment-pr:
+    description: 'Post a PR comment with the results'
+    required: false
+    default: 'true'
+  baseline-path:
+    description: 'Path to the baseline file (for diff mode)'
+    required: false
+    default: '.mcpvet/baseline.json'
+  offline:
+    description: 'Skip network calls to npm/PyPI/GitHub'
+    required: false
+    default: 'false'
+  mcpvet-command:
+    description: 'Command to invoke mcpvet (default: npx mcpvet)'
+    required: false
+    default: 'npx mcpvet'
+  github-token:
+    description: 'GitHub token for posting PR comments (default: workflow GITHUB_TOKEN)'
+    required: false
+    default: ''
+
+outputs:
+  findings-count:
+    description: 'Number of findings at or above the severity threshold'
+  risk-score:
+    description: 'Aggregate risk score (0-100)'
+  has-critical:
+    description: '"true" if the scan found any critical-severity findings, else "false"'
+  result-path:
+    description: 'Path to the JSON results file (artifact)'
+  exit-code:
+    description: 'Exit code from mcpvet (0 = clean, 1 = findings)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
