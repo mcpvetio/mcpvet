@@ -1,7 +1,6 @@
 {
   "name": "mcpvet",
   "version": "0.1.0",
-  "private": true,
   "description": "Security scanner for MCP (Model Context Protocol) configurations",
   "license": "MIT",
   "repository": {

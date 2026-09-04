@@ -24,7 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter mcpvet build
       - name: Publish to npm (with provenance)
-        run: pnpm --filter mcpvet publish --provenance --access public
+        run: pnpm --filter mcpvet publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create GitHub release
