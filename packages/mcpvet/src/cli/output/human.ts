@@ -1,3 +1,4 @@
+import { COVERAGE } from '../../core/coverage.js';
 import type { DiffResult, OriginInfo, ScanResult, Severity } from '../../types/index.js';
 import { SEVERITY_ORDER } from '../../types/index.js';
 import { c } from '../colors.js';
@@ -100,6 +101,22 @@ export function formatHuman(scan: ScanResult, origins: OriginInfo[], opts: Human
       lines.push(c.green(`risk delta: ${opts.diff.riskDelta}`));
     }
   }
+
+  // Coverage (always shown — honest about what we don't check)
+  lines.push(
+    c.bold(
+      `Coverage  ${c.dim(`(${COVERAGE.checked.length} checked, ${COVERAGE.notChecked.length} not checked)`)}`,
+    ),
+  );
+  lines.push('');
+  for (const c1 of COVERAGE.checked) {
+    lines.push(`  ${c.green('✓')} ${c1}`);
+  }
+  for (const n of COVERAGE.notChecked) {
+    const tracked = n.trackedIn ? c.dim(` — ${n.trackedIn}`) : '';
+    lines.push(`  ${c.yellow('✗')} ${c.bold(n.area)}${c.dim(` — ${n.reason}`)}${tracked}`);
+  }
+  lines.push('');
 
   return lines.join('\n');
 }

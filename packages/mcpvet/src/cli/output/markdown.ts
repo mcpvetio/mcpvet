@@ -1,3 +1,4 @@
+import { COVERAGE } from '../../core/coverage.js';
 import type { DiffResult, OriginInfo, ScanResult, Severity } from '../../types/index.js';
 
 const SEVERITY_RANK = { info: 0, low: 1, medium: 2, high: 3, critical: 4 } as const;
@@ -59,6 +60,20 @@ export function formatMarkdown(scan: ScanResult, origins: OriginInfo[], diff?: D
       const mark = e.kind === 'added' ? '➕' : e.kind === 'removed' ? '➖' : '✏️';
       lines.push(`- ${mark} ${e.summary}`);
     }
+  }
+
+  // Coverage section — always shown so the scan's scope is honest
+  lines.push('');
+  lines.push('### Coverage');
+  lines.push('');
+  lines.push('**Checked:**');
+  for (const c1 of COVERAGE.checked) {
+    lines.push(`- ${c1}`);
+  }
+  lines.push('');
+  lines.push('**Not checked:**');
+  for (const n of COVERAGE.notChecked) {
+    lines.push(`- _${n.area}_ — ${n.reason} (${n.trackedIn})`);
   }
 
   lines.push('');
