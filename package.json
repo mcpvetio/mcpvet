@@ -19,11 +19,11 @@
     "clean": "pnpm -r clean && rm -rf node_modules"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.5.12",
     "@types/node": "^22.10.2",
-    "lefthook": "^1.10.1",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "lefthook": "^2.1.12",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["@biomejs/biome", "lefthook", "esbuild"],
